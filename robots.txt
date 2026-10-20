@@ -1,4 +1,6 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://spamsentry.vercel.app/sitemap.xml
+Sitemap: https://spamsentry-lyart.vercel.app/sitemap.xml
+
+
