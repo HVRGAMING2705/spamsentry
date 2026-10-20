@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="google-site-verification" content="5EchCsH88JXnn0Mc55I8joYV6mial9rsc4G8c0eg4Ls" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SpamSentry — AI SMS Spam Detector</title>
+<meta name="description" content="SpamSentry is a machine-learning SMS spam detector. Paste any message and a real TF-IDF + Naive Bayes model, trained in Python and running fully in your browser, tells you if it's spam or ham.">
+<link rel="canonical" href="https://spamsentry.vercel.app/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="SpamSentry — AI SMS Spam Detector">
+<meta property="og:description" content="Paste a text message, get an instant SPAM or HAM verdict from a real trained ML model running in your browser.">
+<meta property="og:url" content="https://spamsentry.vercel.app/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="SpamSentry — AI SMS Spam Detector">
+<meta name="twitter:description" content="Real TF-IDF + Naive Bayes spam model, running 100% in the browser.">
+<meta name="robots" content="index, follow">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"SoftwareApplication",
+"name":"SpamSentry","applicationCategory":"EducationalApplication",
+"operatingSystem":"Web","description":"Machine-learning SMS spam detector, running entirely in the browser.",
+"author":{"@type":"Person","name":"Vikranth Reddy"}}
+</script>
+<style>
+  :root { --ink:#111; --muted:#555; --line:#e5e5e5; --bg:#ffffff; --card:#fafafa; }
+  * { box-sizing:border-box; }
+  body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+         color:var(--ink); background:var(--bg); margin:0; line-height:1.6; }
+  .wrap { max-width:760px; margin:0 auto; padding:32px 20px 64px; }
+  header { border-bottom:2px solid var(--ink); padding-bottom:16px; margin-bottom:28px; }
+  h1 { font-size:2rem; margin:0 0 4px; letter-spacing:-0.5px; }
+  .tag { color:var(--muted); margin:0; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:20px; margin:18px 0; }
+  textarea { width:100%; min-height:110px; border:1px solid var(--line); border-radius:8px;
+             padding:12px; font-size:1rem; color:var(--ink); resize:vertical; }
+  button { background:var(--ink); color:#fff; border:0; border-radius:8px; padding:12px 26px;
+           font-size:1rem; cursor:pointer; margin-top:12px; }
+  button:hover { background:#333; }
+  .samples { margin-top:10px; font-size:.9rem; color:var(--muted); }
+  .samples button { background:#fff; color:var(--ink); border:1px solid var(--line);
+                    padding:6px 12px; font-size:.85rem; margin:4px 6px 0 0; }
+  #result { display:none; }
+  .label { font-size:1.6rem; font-weight:700; margin:6px 0; }
+  .spam { color:#c1121f; } .ham { color:#0a7a2f; }
+  .bar { height:14px; background:#eee; border-radius:7px; overflow:hidden; margin:10px 0; }
+  .fill { height:100%; width:50%; transition:width .4s; background:var(--ink); }
+  .words { font-size:.9rem; color:var(--muted); }
+  .words b { color:var(--ink); }
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  @media (max-width:600px){ .grid{grid-template-columns:1fr;} }
+  h2 { font-size:1.3rem; margin:28px 0 8px; }
+  code { background:#f0f0f0; padding:2px 6px; border-radius:4px; font-size:.9em; }
+  footer { border-top:1px solid var(--line); margin-top:40px; padding-top:16px;
+           color:var(--muted); font-size:.9rem; }
+  a { color:var(--ink); }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>SpamSentry 🛡️</h1>
+  <p class="tag">AI-powered SMS spam detector — by Vikranth Reddy</p>
+</header>
+
+<section class="card">
+  <h2 style="margin-top:0">Try the live model</h2>
+  <p>Type or paste a text message below. A real <b>TF-IDF + Naive Bayes</b> model — trained in Python, exported as weights, running 100% in your browser — judges it SPAM or HAM.</p>
+  <textarea id="input" placeholder="e.g. WINNER!! You won a free iPhone, text CLAIM to 80808 now"></textarea>
+  <div><button id="go">Check message</button></div>
+  <div class="samples">Try:
+    <button data-s="WINNER!! You have been selected to receive a free iPhone. Call 0900-123-456 now to claim your prize">🚨 spam</button>
+    <button data-s="Congratulations! You have won $5000 in the Mega lottery draw. Text CLAIM to 80808">💰 spam</button>
+    <button data-s="Hey, are we still meeting for dinner at 7pm?">✅ ham</button>
+    <button data-s="Can you pick up milk on your way home please?">🏠 ham</button>
+  </div>
+</section>
+
+<section class="card" id="result">
+  <div class="label" id="verdict">—</div>
+  <div class="bar"><div class="fill" id="bar"></div></div>
+  <div id="prob" style="color:var(--muted)">—</div>
+  <div class="words" id="why" style="margin-top:10px"></div>
+</section>
+
+<section>
+  <h2>How it works</h2>
+  <div class="grid">
+    <div class="card"><b>1. Data</b><br>216 labeled SMS messages (108 spam / 108 ham), generated from class-controlled templates.</div>
+    <div class="card"><b>2. Features</b><br>TF-IDF unigrams — each word weighted by how rare it is across messages.</div>
+    <div class="card"><b>3. Model</b><br>Multinomial Naive Bayes (scikit-learn) — learns per-word spam/ham likelihoods. 5-fold CV accuracy: <b>100%</b>.</div>
+    <div class="card"><b>4. Browser</b><br><code>weights.json</code> (vocabulary + idf + priors + log-probabilities) is shipped to the site; JavaScript re-runs the exact same math as sklearn's <code>predict_proba</code>.</div>
+  </div>
+  <h2>Tech stack</h2>
+  <p>Python · scikit-learn · NumPy · vanilla JavaScript · static hosting (Vercel)</p>
+  <h2>Files in this repo</h2>
+  <p><code>train.py</code> — trains the model and exports <code>weights.json</code> · <code>index.html</code> — this demo · <code>vercel.json</code> — security headers</p>
+</section>
+
+<footer>
+  Built by <a href="https://github.com/HVRGAMING2705">Vikranth Reddy</a> · B.Tech CSE (AI &amp; ML), Woxsen University ·
+  <a href="https://github.com/HVRGAMING2705/spamsentry">GitHub repo</a>
+</footer>
+</div>
+
+<script>
+let W = null;
+let STOP = new Set();
+let IDX = {};
+fetch("weights.json").then(r => r.json()).then(w => {
+  W = w;
+  STOP = new Set(w.stop_words);
+  w.vocab.forEach((t, i) => { IDX[t] = i; });
+}).catch(() => {});
+
+function tokenize(text) {
+  return (text.toLowerCase().match(/\b\w\w+\b/g) || []).filter(t => !STOP.has(t));
+}
+
+function predict(text) {
+  const tf = {};
+  tokenize(text).forEach(t => { tf[t] = (tf[t] || 0) + 1; });
+  // TF-IDF: sublinear tf * idf, then L2 row normalization (matches sklearn)
+  const feats = [];
+  for (const [tok, cnt] of Object.entries(tf)) {
+    const i = IDX[tok];
+    if (i === undefined) continue;
+    feats.push({ tok, i, x: (1 + Math.log(cnt)) * W.idf[i] });
+  }
+  const norm = Math.sqrt(feats.reduce((s, f) => s + f.x * f.x, 0)) || 1;
+  // joint log-likelihood per class (matches sklearn predict_log_proba)
+  const jll = [W.class_log_prior[0], W.class_log_prior[1]];
+  feats.forEach(f => {
+    const v = f.x / norm;
+    f.c = v * (W.feature_log_prob[1][f.i] - W.feature_log_prob[0][f.i]); // spam-vs-ham push
+    jll[0] += v * W.feature_log_prob[0][f.i];
+    jll[1] += v * W.feature_log_prob[1][f.i];
+  });
+  const m = Math.max(jll[0], jll[1]);
+  const e = [Math.exp(jll[0] - m), Math.exp(jll[1] - m)];
+  const s = e[0] + e[1];
+  const pSpam = e[1] / s;
+  feats.sort((a, b) => Math.abs(b.c) - Math.abs(a.c));
+  return { pSpam, top: feats.slice(0, 5) };
+}
+
+function check() {
+  const text = document.getElementById("input").value.trim();
+  if (!text) { alert("Type a message first!"); return; }
+  if (!W) { alert("Model weights are still loading — try again in a second."); return; }
+  const { pSpam, top } = predict(text);
+  const res = document.getElementById("result");
+  res.style.display = "block";
+  const v = document.getElementById("verdict");
+  const bar = document.getElementById("bar");
+  if (pSpam >= 0.5) {
+    v.innerHTML = "🚨 SPAM"; v.className = "label spam";
+    bar.style.background = "#c1121f";
+  } else {
+    v.innerHTML = "✅ HAM"; v.className = "label ham";
+    bar.style.background = "#0a7a2f";
+  }
+  bar.style.width = (pSpam * 100).toFixed(1) + "%";
+  document.getElementById("prob").textContent =
+    `P(spam) = ${pSpam.toFixed(3)}  ·  P(ham) = ${(1 - pSpam).toFixed(3)}`;
+  document.getElementById("why").innerHTML = top.length
+    ? "Top words pushing the decision: " + top.map(f =>
+        `<b>${f.tok}</b> (${f.c >= 0 ? "+" : ""}${f.c.toFixed(2)})`).join(", ")
+    : "No known words in this message — try words like <b>winner</b>, <b>claim</b>, <b>free</b>, <b>dinner</b>.";
+  res.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+document.getElementById("go").addEventListener("click", check);
+document.getElementById("input").addEventListener("keydown", e => {
+  if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) check();
+});
+document.querySelectorAll(".samples button").forEach(b =>
+  b.addEventListener("click", () => {
+    document.getElementById("input").value = b.dataset.s;
+    check();
+  }));
+</script>
+</body>
+</html>
