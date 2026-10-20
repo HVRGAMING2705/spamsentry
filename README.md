@@ -2,7 +2,7 @@
 
 ML-powered **SMS spam detector** — paste any text message and a real trained model tells you if it's SPAM or HAM, right in the browser.
 
-**Live demo:** https://spamsentry.vercel.app
+**Live demo:** https://spamsentry-lyart.vercel.app
 
 ## How it works
 
