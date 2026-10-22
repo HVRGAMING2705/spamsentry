@@ -4,15 +4,15 @@
 <meta name="google-site-verification" content="5EchCsH88JXnn0Mc55I8joYV6mial9rsc4G8c0eg4Ls" />
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SpamSentry — AI SMS Spam Detector</title>
+<title>SpamSentry: AI SMS Spam Detector</title>
 <meta name="description" content="SpamSentry is a machine-learning SMS spam detector. Paste any message and a real TF-IDF + Naive Bayes model, trained in Python and running fully in your browser, tells you if it's spam or ham.">
-<link rel="canonical" href="https://spamsentry-lyart.vercel.app/">
+<link rel="canonical" href="https://spamsentry.vercel.app/">
 <meta property="og:type" content="website">
-<meta property="og:title" content="SpamSentry — AI SMS Spam Detector">
+<meta property="og:title" content="SpamSentry: AI SMS Spam Detector">
 <meta property="og:description" content="Paste a text message, get an instant SPAM or HAM verdict from a real trained ML model running in your browser.">
-<meta property="og:url" content="https://spamsentry-lyart.vercel.app/">
+<meta property="og:url" content="https://spamsentry.vercel.app/">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="SpamSentry — AI SMS Spam Detector">
+<meta name="twitter:title" content="SpamSentry: AI SMS Spam Detector">
 <meta name="twitter:description" content="Real TF-IDF + Naive Bayes spam model, running 100% in the browser.">
 <meta name="robots" content="index, follow">
 <script type="application/ld+json">
@@ -54,20 +54,17 @@
            color:var(--muted); font-size:.9rem; }
   a { color:var(--ink); }
 </style>
-<meta property="og:image" content="https://spamsentry-lyart.vercel.app/og.png">
-<meta name="twitter:image" content="https://spamsentry-lyart.vercel.app/og.png">
-<link rel="icon" type="image/svg+xml" href="/favicon.svg">
 </head>
 <body>
 <div class="wrap">
 <header>
-  <h1>SpamSentry 🛡️</h1>
-  <p class="tag">AI-powered SMS spam detector — by Vikranth Reddy</p>
+  <h1>SpamSentry</h1>
+  <p class="tag">AI-powered SMS spam detector, by Vikranth Reddy</p>
 </header>
 
 <section class="card">
   <h2 style="margin-top:0">Try the live model</h2>
-  <p>Type or paste a text message below. A real <b>TF-IDF + Naive Bayes</b> model — trained in Python, exported as weights, running 100% in your browser — judges it SPAM or HAM.</p>
+  <p>Type or paste a text message below. A real <b>TF-IDF + Naive Bayes</b> model, trained in Python, exported as weights, running 100% in your browser, judges it SPAM or HAM.</p>
   <textarea id="input" placeholder="e.g. WINNER!! You won a free iPhone, text CLAIM to 80808 now"></textarea>
   <div><button id="go">Check message</button></div>
   <div class="samples">Try:
@@ -89,20 +86,19 @@
   <h2>How it works</h2>
   <div class="grid">
     <div class="card"><b>1. Data</b><br>216 labeled SMS messages (108 spam / 108 ham), generated from class-controlled templates.</div>
-    <div class="card"><b>2. Features</b><br>TF-IDF unigrams — each word weighted by how rare it is across messages.</div>
-    <div class="card"><b>3. Model</b><br>Multinomial Naive Bayes (scikit-learn) — learns per-word spam/ham likelihoods. 5-fold CV accuracy: <b>100%</b>.</div>
+    <div class="card"><b>2. Features</b><br>TF-IDF unigrams: each word weighted by how rare it is across messages.</div>
+    <div class="card"><b>3. Model</b><br>Multinomial Naive Bayes (scikit-learn): learns per-word spam/ham likelihoods. 5-fold CV accuracy: <b>100%</b>.</div>
     <div class="card"><b>4. Browser</b><br><code>weights.json</code> (vocabulary + idf + priors + log-probabilities) is shipped to the site; JavaScript re-runs the exact same math as sklearn's <code>predict_proba</code>.</div>
   </div>
   <h2>Tech stack</h2>
   <p>Python · scikit-learn · NumPy · vanilla JavaScript · static hosting (Vercel)</p>
   <h2>Files in this repo</h2>
-  <p><code>train.py</code> — trains the model and exports <code>weights.json</code> · <code>index.html</code> — this demo · <code>vercel.json</code> — security headers</p>
+  <p><code>train.py</code>: trains the model and exports <code>weights.json</code> · <code>index.html</code>: this demo · <code>vercel.json</code>: security headers</p>
 </section>
 
 <footer>
   Built by <a href="https://github.com/HVRGAMING2705">Vikranth Reddy</a> · B.Tech CSE (AI &amp; ML), Woxsen University ·
   <a href="https://github.com/HVRGAMING2705/spamsentry">GitHub repo</a>
-<span class="fleet-legal" style="display:block;text-align:center;padding:10px 0;font-size:13px"><a href="/legal.html">Privacy · Terms</a></span>
 </footer>
 </div>
 
@@ -150,7 +146,7 @@ function predict(text) {
 function check() {
   const text = document.getElementById("input").value.trim();
   if (!text) { alert("Type a message first!"); return; }
-  if (!W) { alert("Model weights are still loading — try again in a second."); return; }
+  if (!W) { alert("Model weights are still loading, try again in a second."); return; }
   const { pSpam, top } = predict(text);
   const res = document.getElementById("result");
   res.style.display = "block";
@@ -169,7 +165,7 @@ function check() {
   document.getElementById("why").innerHTML = top.length
     ? "Top words pushing the decision: " + top.map(f =>
         `<b>${f.tok}</b> (${f.c >= 0 ? "+" : ""}${f.c.toFixed(2)})`).join(", ")
-    : "No known words in this message — try words like <b>winner</b>, <b>claim</b>, <b>free</b>, <b>dinner</b>.";
+    : "No known words in this message. Try words like <b>winner</b>, <b>claim</b>, <b>free</b>, <b>dinner</b>.";
   res.scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
 
@@ -183,6 +179,5 @@ document.querySelectorAll(".samples button").forEach(b =>
     check();
   }));
 </script>
-<script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>
